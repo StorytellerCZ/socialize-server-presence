@@ -5,19 +5,19 @@ import { Mongo } from 'meteor/mongo';
 
 const Servers = new Mongo.Collection('presence:servers');
 
-if (Servers.createIndexAsync) {
-  try {
-    Servers.createIndexAsync({ lastPing: 1 }, { expireAfterSeconds: 10 });
-    Servers.createIndexAsync({ createdAt: -1 });
-  } catch (e) {
-    throw new Meteor.Error('Failed to initialize indexes');
-  }
-} else if (Servers.createIndex) {
-  Servers.createIndex({ lastPing: 1 }, { expireAfterSeconds: 10 });
-  Servers.createIndex({ createdAt: -1 });
-} else {
-  Servers._ensureIndex({ lastPing: 1 }, { expireAfterSeconds: 10 });
-  Servers._ensureIndex({ createdAt: -1 });
+try {
+    if (Servers.createIndexAsync) {
+        Servers.createIndexAsync({ lastPing: 1 }, { expireAfterSeconds: 10 });
+        Servers.createIndexAsync({ createdAt: -1 });
+    } else if (Servers.createIndex) {
+        Servers.createIndex({ lastPing: 1 }, { expireAfterSeconds: 10 });
+        Servers.createIndex({ createdAt: -1 });
+    } else {
+        Servers._ensureIndex({ lastPing: 1 }, { expireAfterSeconds: 10 });
+        Servers._ensureIndex({ createdAt: -1 });
+    }
+} catch (e) {
+    console.debug('Failed to create indexes for presence:servers collection')
 }
 
 let serverId = null;
