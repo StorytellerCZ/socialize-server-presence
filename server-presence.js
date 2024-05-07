@@ -30,9 +30,9 @@ const exitFunctions = [];
 /* eslint-disable import/prefer-default-export */
 export const ServerPresence = {};
 
-const insert = () => {
+const insert = async () => {
     const date = new Date();
-    serverId = Servers.insert({ lastPing: date, createdAt: date });
+    serverId = await Servers.insertAsync({ lastPing: date, createdAt: date });
 };
 
 const runCleanupFunctions = (removedServerId) => {
@@ -41,15 +41,15 @@ const runCleanupFunctions = (removedServerId) => {
     });
 };
 
-const setAsWatcher = () => {
+const setAsWatcher = async () => {
     isWatcher = true;
-    Servers.update({ _id: serverId }, { $set: { watcher: true } });
+    await Servers.updateAsync({ _id: serverId }, { $set: { watcher: true } });
 };
 
-const updateWatcher = () => {
-    const server = Servers.findOne({}, { sort: { createdAt: -1 } });
+const updateWatcher = async () => {
+    const server = await Servers.findOneAsync({}, { sort: { createdAt: -1 } });
     if (server._id === serverId) {
-        setAsWatcher();
+        await setAsWatcher();
     }
 };
 
@@ -78,8 +78,8 @@ const observe = () => {
     });
 };
 
-const checkForWatcher = () => {
-    const current = Servers.findOne({ watcher: true });
+const checkForWatcher = async () => {
+    const current = await Servers.findOneAsync({ watcher: true });
     if (current) {
         return true;
     }
@@ -87,11 +87,11 @@ const checkForWatcher = () => {
     return false;
 };
 
-const start = () => {
+const start = async () => {
     observe();
 
-    Meteor.setInterval(function serverTick() {
-        Servers.update(serverId, { $set: { lastPing: new Date() } });
+    Meteor.setInterval(async function serverTick() {
+        await Servers.updateAsync(serverId, { $set: { lastPing: new Date() } });
         return true;
     }, 5000);
 
@@ -113,9 +113,9 @@ const exit = () => {
 *  We have to bind the meteor environment here since process event callbacks
 *  run outside fibers
 */
-const stop = Meteor.bindEnvironment(function boundEnvironment() {
+const stop = Meteor.bindEnvironment(async function boundEnvironment() {
     if (exitGracefully) {
-        Servers.update({ _id: serverId }, { $set: { graceful: true } });
+        await Servers.updateAsync({ _id: serverId }, { $set: { graceful: true } });
         observeHandle.stop();
         exit();
     }
