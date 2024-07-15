@@ -7,7 +7,7 @@ Package.describe({
 });
 
 Package.onUse(function _(api) {
-    api.versionsFrom(['1.10.2', '2.3', '3.0-rc.0']);
+    api.versionsFrom(['1.10.2', '2.3', '3.0']);
 
   api.use(['ecmascript', 'mongo'], 'server');
 
