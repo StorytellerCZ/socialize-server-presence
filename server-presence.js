@@ -116,7 +116,7 @@ const exit = () => {
 const stop = Meteor.bindEnvironment(async function boundEnvironment() {
     if (exitGracefully) {
         await Servers.updateAsync({ _id: serverId }, { $set: { graceful: true } });
-        observeHandle.stop();
+        observeHandle?.stop?.();
         exit();
     }
 });
